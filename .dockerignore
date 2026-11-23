@@ -1,0 +1,7 @@
+**
+!lean-toolchain
+!lakefile.toml
+!Main.lean
+!Leaf.lean
+!Leaf/
+!Leaf/**

@@ -1,0 +1,29 @@
+name = "leaf"
+version = "0.1.0"
+defaultTargets = ["leaf"]
+
+[[lean_lib]]
+name = "Leaf"
+
+[[lean_lib]]
+name = "Tests"
+
+[[lean_exe]]
+name = "leaf"
+root = "Main"
+
+[[lean_exe]]
+name = "core_tests"
+root = "Tests.CoreTests"
+
+[[lean_exe]]
+name = "storage_tests"
+root = "Tests.StorageTests"
+
+[[lean_exe]]
+name = "recovery_tests"
+root = "Tests.RecoveryTests"
+
+[[lean_exe]]
+name = "app_tests"
+root = "Tests.AppTests"

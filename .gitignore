@@ -1,0 +1,6 @@
+﻿# Lean and Lake build artifacts
+/.lake/
+/lake-manifest.json
+
+# Local journal database, uploaded image bucket, and writer lock
+/data/
