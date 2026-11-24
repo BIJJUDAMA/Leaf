@@ -146,7 +146,7 @@ theorem decodeUInt16LEAt_encode_prefix (pfx rest : ByteArray) (v : UInt16) :
   rw [h0]; dsimp only
   rw [h1]; dsimp only
   rw [u16_reassemble]
-  simp only [enc, encodeUInt16LE, ByteArray.size_append, Nat.add_assoc]
+  simp only [encodeUInt16LE, ByteArray.size_append, Nat.add_assoc]
 
 def encodeUInt32LE (v : UInt32) : ByteArray :=
   encodeUInt16LE v.toUInt16 ++ encodeUInt16LE (v >>> 16).toUInt16
