@@ -48,7 +48,7 @@ def applyCommittedWalOp (db : DbState) (seq : SeqNo) (op : WalOp) : DbState :=
   let nextSeq : SeqNo := ⟨if db.lastSeq.val < seq.val then seq.val else db.lastSeq.val⟩
   match op with
   | .putPost post =>
-    if 0 < post.id.val.toNat ∧ post.id.val.toNat + 1 < 2 ^ 64 ∧ True then
+    if 0 < post.id.val.toNat ∧ post.id.val.toNat + 1 < 2 ^ 64 ∧ post.version.val ≤ nextSeq.val then
       let feed1 :=
         match db.posts[post.id]? with
         | some old => db.feedIndex.erase (FeedKey.ofPost old)
@@ -66,7 +66,7 @@ def applyCommittedWalOp (db : DbState) (seq : SeqNo) (op : WalOp) : DbState :=
     match db.posts[post.id]? with
     | none => db
     | some existing =>
-      if True then
+      if post.version.val ≤ nextSeq.val then
         let feed1 := db.feedIndex.erase (FeedKey.ofPost existing)
         { db with
           posts := db.posts.insert post.id post
