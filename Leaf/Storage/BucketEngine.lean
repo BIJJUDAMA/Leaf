@@ -213,7 +213,7 @@ def putObject {policy : StoragePolicy} (e : BucketEngine policy)
         return .ok (candKey, existingMeta, false, cur)
     | .error _ => pure ()
   -- Either new digest or explicit SHA-256 collision: allocate new ObjectKey
-  let newKey : ObjectKey := { digest := digest, tag := candidates.size.toUInt32 }
+  let newKey : ObjectKey := { digest := digest, tag := ⟨candidates.size.toUInt64⟩ }
   let segRec : BucketSegmentRecord := { key := newKey, mime := mime, payload := data }
   let recPayload := encodeBucketSegmentRecord segRec
   let frameSize := frameOverhead + recPayload.size
