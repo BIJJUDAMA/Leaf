@@ -124,7 +124,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       match ← bCur.putObject bytes mime with
       | .error e =>
         let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-        set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+        set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
         return .error e
       | .ok (key, entryMeta, isNew, bNext) =>
         bCur := bNext
@@ -133,7 +133,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
           match ← dbCur.appendWalFrame txId seqCur (.allocObject (toWalBucketEntry entryMeta)) with
           | .error e =>
             let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-            set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+            set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
             return .error e
           | .ok d => dbCur := d
         imgRef? := some { key := key, mime := mime, byteSize := entryMeta.byteSize.toUInt32 }
@@ -141,7 +141,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
     match dbCur.state.createPost now draft imgRef? with
     | .error e =>
       let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-      set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+      set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
       return .error s!"createPost failed: {repr e}"
     | .ok (post, _) =>
       seqCur := ⟨seqCur.val + 1⟩
@@ -149,7 +149,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       match ← dbCur.appendWalFrame txId seqCur postOp with
       | .error e =>
         let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-        set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+        set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
         return .error e
       | .ok d => dbCur := d
       -- 4. Reference count update in WAL + commit
@@ -159,7 +159,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
         match ← dbCur.appendWalFrame txId seqCur (.incRef ref.key) with
         | .error e =>
           let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-          set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+          set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
           return .error e
         | .ok d => dbCur := d
         bCur := bCur.incRef ref.key
@@ -172,7 +172,7 @@ def createPostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       | .ok d => dbCur := d
       -- 5. Publish committed state in memory
       dbCur := dbCur.applyCommitted post.version postOp
-      set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+      set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
       return .ok post
 
 /-- Updates an existing post (optionally replacing/removing its image) transactionally. -/
@@ -199,12 +199,12 @@ def updatePostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       let some (bytes, mime) := newImg?
         | do
           let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-          set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+          set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
           return .error "missing replacement image bytes"
       match ← bCur.putObject bytes mime with
       | .error e =>
         let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-        set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+        set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
         return .error e
       | .ok (key, entryMeta, isNew, bNext) =>
         bCur := bNext
@@ -213,14 +213,14 @@ def updatePostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
           match ← dbCur.appendWalFrame txId seqCur (.allocObject (toWalBucketEntry entryMeta)) with
           | .error e =>
             let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-            set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+            set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
             return .error e
           | .ok d => dbCur := d
         newRef? := some { key := key, mime := mime, byteSize := entryMeta.byteSize.toUInt32 }
     match dbCur.state.updatePost id now patch newRef? with
     | .error e =>
       let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-      set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+      set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
       return .error s!"updatePost failed: {repr e}"
     | .ok (updated, _) =>
       seqCur := ⟨seqCur.val + 1⟩
@@ -228,7 +228,7 @@ def updatePostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       match ← dbCur.appendWalFrame txId seqCur op with
       | .error e =>
         let _ ← dbCur.appendWalFrame txId ⟨seqCur.val + 1⟩ .abortTx
-        set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+        set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
         return .error e
       | .ok d => dbCur := d
       -- Update refcounts for old/new images
@@ -262,7 +262,7 @@ def updatePostWithImage {policy : StoragePolicy} (store : StoreEngine policy)
       | .error e => return .error e
       | .ok d => dbCur := d
       dbCur := dbCur.applyCommitted updated.version op
-      set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+      set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
       return .ok updated
 
 /-- Deletes a post transactionally, decrementing any attached image reference count. -/
@@ -297,7 +297,7 @@ def deletePost {policy : StoragePolicy} (store : StoreEngine policy) (id : PostI
       | .error e => return .error e
       | .ok d => pure d
     dbCur := dbCur.applyCommitted seqCur op
-    set ({ db := dbCur, bucket := bCur } : StoreInner policy)
+    set ({ inner with db := dbCur, bucket := bCur } : StoreInner policy)
     return .ok ()
 
 /-- Stages an image and immediately aborts the transaction (useful for testing orphan handling). -/
