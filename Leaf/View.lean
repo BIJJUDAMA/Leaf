@@ -203,7 +203,7 @@ def docsPage : String :=
   "<a href='#gc'>Garbage Collection</a>" ++
   "<a href='#compact'>Compaction</a>" ++
   "<a href='#recovery'>Crash Recovery</a>" ++
-  "<a href='#verification'>Formal Proofs</a>" ++
+  "<a href='#verification'>Formal Verification</a>" ++
   "<a href='#api'>HTTP &amp; JSON API</a>" ++
   "</nav>" ++
 
