@@ -41,12 +41,12 @@ private def parseMaintNotice (uri : String) : Option String :=
     let wid2 := queryParam? uri "w2" |>.getD "?"
     let c1 := queryParam? uri "c1" |>.getD "?"
     let c2 := queryParam? uri "c2" |>.getD "?"
-    some s!"Checkpoint complete — WAL #{wid1} ({formatBytes wb}) → WAL #{wid2} ({formatBytes wa}) · Checkpoint #{c1} → #{c2}"
+    some s!"Checkpoint complete: WAL #{wid1} ({formatBytes wb}) → WAL #{wid2} ({formatBytes wa}) · Checkpoint #{c1} → #{c2}"
   | some "gc" =>
     let rem := (queryParam? uri "rem").bind String.toNat? |>.getD 0
     let ob := (queryParam? uri "ob").bind String.toNat? |>.getD 0
     let oa := (queryParam? uri "oa").bind String.toNat? |>.getD 0
-    some s!"GC complete — Stored images {ob} → {oa} ({rem} reclaimed)"
+    some s!"GC complete: Stored images {ob} → {oa} ({rem} reclaimed)"
   | some "compact" =>
     let tb := (queryParam? uri "tb").bind String.toNat? |>.getD 0
     let ta := (queryParam? uri "ta").bind String.toNat? |>.getD 0
@@ -54,7 +54,7 @@ private def parseMaintNotice (uri : String) : Option String :=
     let sa := (queryParam? uri "sa").bind String.toNat? |>.getD 0
     let bb := (queryParam? uri "bb").bind String.toNat? |>.getD 0
     let ba := (queryParam? uri "ba").bind String.toNat? |>.getD 0
-    some s!"Compaction complete — Tombstones {tb} → {ta} · Segments {sb} ({formatBytes bb}) → {sa} ({formatBytes ba})"
+    some s!"Compaction complete: Tombstones {tb} → {ta} · Segments {sb} ({formatBytes bb}) → {sa} ({formatBytes ba})"
   | _ => none
 
 private def postToJson (p : Leaf.Core.Post) : Json :=

@@ -209,7 +209,7 @@ def docsPage : String :=
 
   "<section id=overview class=doc-section><h2>1. Overview</h2>" ++
   "<p>Leaf is a self-contained journal and image store written entirely in Lean 4. Instead of delegating storage to SQLite, PostgreSQL, or an external object service like S3, Leaf implements its own persistence layer, checksums, hashing, indexing, transactions, and recovery directly in Lean.</p>" ++
-  "<p>Because Lean's standard file handles only support sequential reading and appending (not jumping to arbitrary byte offsets or forcing OS-level disk syncs), Leaf cannot use traditional in-place B-Trees. Instead, it stores everything as append-only logs— and swaps state files atomically using temporary files and renames.</p>" ++
+  "<p>Because Lean's standard file handles only support sequential reading and appending (not jumping to arbitrary byte offsets or forcing OS-level disk syncs), Leaf cannot use traditional in-place B-Trees. Instead, it stores everything as append-only logs and swaps state files atomically using temporary files and renames.</p>" ++
   "<pre>data/\n├── database/\n│   ├── manifest.bin          # Tracks the latest checkpoint and active log file\n│   ├── wal/                  # Append-only transaction logs\n│   └── checkpoints/          # Full snapshots of committed posts\n└── bucket/\n    ├── manifest.bin          # Tracks the active image pack file and offset\n    └── segments/             # 16 MiB append-only image pack files</pre>" ++
   "</section>" ++
 
